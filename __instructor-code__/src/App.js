@@ -1,107 +1,134 @@
-import React, { Component } from 'react'
-import logo from './mainStreetAuto.svg'
-import axios from 'axios'
-import './App.css'
-import { ToastContainer, toast } from 'react-toastify'
+import React, { Component } from 'react';
+import logo from './mainStreetAuto.svg';
+import axios from 'axios';
+import './App.css';
 
-export default class App extends Component {
+// Toast notification dependencies
+import { ToastContainer, toast } from 'react-toastify';
+
+class App extends Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       vehiclesToDisplay: [],
       buyersToDisplay: []
-    }
+    };
+
+    this.getVehicles = this.getVehicles.bind(this);
+    this.getPotentialBuyers = this.getPotentialBuyers.bind(this);
+    this.sellCar = this.sellCar.bind(this);
+    this.addCar = this.addCar.bind(this);
+    this.filterByColor = this.filterByColor.bind(this);
+    this.filterByMake = this.filterByMake.bind(this);
+    this.addBuyer = this.addBuyer.bind(this);
+    this.nameSearch = this.nameSearch.bind(this);
+    this.resetData = this.resetData.bind(this);
+    this.byYear = this.byYear.bind(this);
+    this.deleteBuyer = this.deleteBuyer.bind(this);
   }
-  getVehicles = () => {
-    axios.get(`https://joes-autos.herokuapp.com/api/vehicles`).then(response => {
-        toast.success('Got all vehicles')
-        this.setState({vehiclesToDisplay: response.data})
-      }).catch(() => toast.error('Failed to get vehicles'))
+
+  getVehicles() {
+    // axios (GET)
+    // setState with response -> vehiclesToDisplay
+    axios.get('https://joes-autos.herokuapp.com/api/vehicles')
+    .then(response => {
+      toast.success('Got all vehicles')
+      this.setState({vehiclesToDisplay: response.data})
+    })
+    .catch(() => toast.error('Failed to get vehicles'))
   }
-  getPotentialBuyers = () => {
-    axios.get(`https://joes-autos.herokuapp.com/api/buyers`).then(response => {
-        toast.success('Found Buyers')
-        this.setState({buyersToDisplay: response.data})
-      }).catch(() => toast.error('No current buyers'))
+
+  getPotentialBuyers() {
+    // axios (GET)
+    // setState with response -> buyersToDisplay
   }
-  sellCar = (id) => {
-    axios.delete(`https://joes-autos.herokuapp.com/api/vehicles/${id}`).then(response => {
-        toast.success('Car was sold')
-        this.setState({vehiclesToDisplay: response.data.vehicles})
-      }).catch(() => toast.error('Failed to sell car'))
+
+  sellCar(id) {
+    // axios (DELETE)
+    // setState with response -> vehiclesToDisplay
+    axios.delete(`https://joes-autos.herokuapp.com/api/vehicles/${id}`)
+    .then(response => {
+      toast.success('Sold car')
+      this.setState({vehiclesToDisplay: response.data.vehicles})
+    })
+    .catch(() => toast.error('Failed to sell car'))
   }
-  filterByMake = () => { 
+
+  filterByMake() {
     let make = this.selectedMake.value;
-    axios.get(`https://joes-autos.herokuapp.com/api/vehicles?make=${make}`).then(response => {
-        toast.success('Found Make')
-        this.setState({vehiclesToDisplay: response.data})
-      }).catch(() => toast.error('No make found'))
+
+    // axios (GET)
+    // setState with response -> vehiclesToDisplay
   }
-  filterByColor = () => {
+
+  filterByColor() {
     let color = this.selectedColor.value;
-    axios.get(`https://joes-autos.herokuapp.com/api/vehicles?color=${color}`)
-      .then(response => {
-        console.log(response.data)
-        toast.success('Color found')
-        this.setState({vehiclesToDisplay: response.data})
-      }).catch(() => toast.error(`No ${color} car's available`))
+
+    // axios (GET)
+    // setState with response -> vehiclesToDisplay
   }
-  updatePrice = (priceChange, id) => {
-    axios.put(`https://joes-autos.herokuapp.com/api/vehicles/${id}/${priceChange}`).then(response => {
-        toast.success('Price has been updated')
-        this.setState({vehiclesToDisplay: response.data.vehicles})
-      }).catch(() => toast.error('Failed to update price'))
+
+  updatePrice(priceChange, id) {
+    // axios (PUT)
+    // setState with response -> vehiclesToDisplay
+    axios.put(`https://joes-autos.herokuapp.com/api/vehicles/${id}/${priceChange}`)
+    .then(response => {
+      toast.success('Updated Price')
+      this.setState({vehiclesToDisplay: response.data.vehicles})
+    })
+    .catch(() => toast.error('Failed to update price'))
   }
-  addCar = () => {
-    // will need to pass 'newCar' into axios.post() as 2nd argument
+
+  addCar() {
     let newCar = {
       make: this.make.value,
       model: this.model.value,
       color: this.color.value,
       year: this.year.value,
       price: this.price.value
-    }
-    axios.post(`https://joes-autos.herokuapp.com/api/vehicles`, newCar).then(response => {
-        toast.success('newCar was added')
-        this.setState({vehiclesToDisplay: response.data.vehicles})
-      })
-      .catch(() => toast.error('Failed to add new car'))
+    };
+
+    // axios (POST)
+    // setState with response -> vehiclesToDisplay
+    axios.post('https://joes-autos.herokuapp.com/api/vehicles', newCar)
+    .then(response => {
+      toast.success('Added car')
+      this.setState({vehiclesToDisplay: response.data.vehicles})
+    })
+    .catch(() => toast.error('Failed to add car'))
   }
-  addBuyer = () => {
+
+  addBuyer() {
     let newBuyer = {
       name: this.name.value,
       phone: this.phone.value,
       address: this.address.value
-    }
-    axios.post(`https://joes-autos.herokuapp.com/api/buyers`, newBuyer).then(response => {
-        toast.success('newBuyer was added')
-        this.setState({buyersToDisplay: response.data.buyers})
-      }).catch(() => toast.error('Failed to '))
+    };
+
+    //axios (POST)
+    // setState with response -> buyersToDisplay
   }
-  deleteBuyer = (id) => {
-    axios.delete(`https://joes-autos.herokuapp.com/api/vehicles`).then(response => {
-        toast.success('Car was removed')
-        this.setState({buyersToDisplay: response.data})
-      }).catch(() => toast.error('Failed to delete car'))
+
+  deleteBuyer(id) {
+    // axios (DELETE)
+    //setState with response -> buyersToDisplay
   }
-  nameSearch = () => {
+
+  nameSearch() {
     let searchLetters = this.searchLetters.value;
-    axios.get(`https://joes-autos.herokuapp.com/api/buyers?name=${searchLetters}`).then(response => {
-        toast.success('Name found')
-        this.setState({buyersToDisplay: response.data})
-      }).catch(() => toast.error('you broke the thing'))
+
+    // axios (GET)
+    // setState with response -> buyersToDisplay
   }
-  byYear = () => {
-    let year = this.searchYear.value -1;
-    axios.get(`https://joes-autos.herokuapp.com/api/vehicles?year=${year}`)
-    .then(response => {
-      console.log(response.data)
-      console.log(year)
-        toast.success('Year found')
-        this.setState({vehiclesToDisplay: response.data})
-      })
+
+  byYear() {
+    let year = this.searchYear.value;
+
+    // axios (GET)
+    // setState with response -> vehiclesToDisplay
   }
+
   // Do not edit the code below
   resetData(dataToReset) {
     axios
@@ -256,15 +283,25 @@ export default class App extends Component {
             placeholder="Year"
           />
 
-          <button onClick={this.byYear} className="btn-inp"> Go </button>
+          <button onClick={this.byYear} className="btn-inp">
+            Go
+          </button>
 
-          <button className="btn-sp btn" onClick={this.getPotentialBuyers}> Get Potential Buyers </button>
+          <button className="btn-sp btn" onClick={this.getPotentialBuyers}>
+            Get Potential Buyers
+          </button>
         </div>
 
         <br />
 
         <p className="form-wrap">
-          <input className="btn-sp" placeholder="make" ref={make => {this.make = make;}} />
+          <input
+            className="btn-sp"
+            placeholder="make"
+            ref={make => {
+              this.make = make;
+            }}
+          />
           <input
             className="btn-sp"
             placeholder="model"
@@ -346,3 +383,5 @@ export default class App extends Component {
     );
   }
 }
+
+export default App;
